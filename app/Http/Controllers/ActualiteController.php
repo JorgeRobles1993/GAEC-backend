@@ -8,19 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ActualiteController extends Controller
 {
-    // Middleware para verificar si el usuario está autenticado
-    public function __construct()
-    {
-        // $this->middleware('auth');
-    }
-
     // Crear nueva publicación
     public function store(Request $request)
     {
         // Verifica si el usuario es administrador
-        // if (Auth::user()->rol !== 'admin') {
-        //     return response()->json(['message' => 'No autorizado'], 403);
-        // }
+         if (Auth::user()->rol !== 'admin') {
+             return response()->json(['message' => 'No autorizado'], 403);
+        }
 
         // Validar los datos
         $request->validate([
