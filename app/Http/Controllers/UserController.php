@@ -94,5 +94,12 @@ public function destroy($id)
     return response()->json(['message' => 'Usuario eliminado correctamente'], 200);
 }
 
+public function isAdmin($token) { 
+    // recuperer les donnes du header 
+
+    // checker dans la BDD le role en se basant sur le token et la liaison dans la session 
+
+}
+
 
 }

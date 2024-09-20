@@ -9,6 +9,33 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 
+
+// Ruta para obtener los datos del usuario autenticado
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+// Rutas protegidas por autenticación para gestionar usuarios
+Route::middleware('auth:sanctum')->group(function () {
+    // ROUTES FOR USERS
+    Route::get('/users', [UserController::class, 'index']); // Obtener todos los usuarios
+    Route::post('/users', [UserController::class, 'store']); // Crear un usuario nuevo
+    Route::get('/user/{id}', [UserController::class, 'show']); // Obtener un usuario específico
+    Route::put('/user/{id}', [UserController::class, 'update']); // Actualizar un usuario
+    Route::delete('/user/{id}', [UserController::class, 'destroy']); // Eliminar un usuario
+    Route::get('/isAdmin', [UserController::class, 'isAdmin']); // Obtener todos los usuarios
+
+    // ROUTES FOR ACTUALITES (Publicaciones)
+    Route::post('/actualites', [ActualiteController::class, 'store']); // Crear una nueva publicación
+    Route::put('/actualites/{id}', [ActualiteController::class, 'update']); // Actualizar una publicación existente
+    Route::delete('/actualites/{id}', [ActualiteController::class, 'destroy']); // Eliminar una publicación
+});
+
+// Rutas para obtener publicaciones abiertas, que no requieren autenticación
+Route::get('/actualites', [ActualiteController::class, 'index']); // Obtener todas las publicaciones
+Route::get('/actualites/{id}', [ActualiteController::class, 'show']); // Obtener una publicación específica
+
+
 Route::post('/login', function (Request $request) {
     $request->validate([
         'email' => 'required|email',
@@ -26,32 +53,12 @@ Route::post('/login', function (Request $request) {
     // Crear un token para el usuario autenticado
     $token = $user->createToken('token-name')->plainTextToken;
 
-    return response()->json(['token' => $token]);
+    // Ajouer l'id  de l'utilisateur sur user_id  de session  $user->id
+
+    return response()->json(['token' => $token, 'rol' => $user->rol]);
 });
 
-// Ruta para obtener los datos del usuario autenticado
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
-// Rutas protegidas por autenticación para gestionar usuarios
-Route::middleware('auth:sanctum')->group(function () {
-    // ROUTES FOR USERS
-    Route::get('/users', [UserController::class, 'index']); // Obtener todos los usuarios
-    Route::post('/users', [UserController::class, 'store']); // Crear un usuario nuevo
-    Route::get('/user/{id}', [UserController::class, 'show']); // Obtener un usuario específico
-    Route::put('/user/{id}', [UserController::class, 'update']); // Actualizar un usuario
-    Route::delete('/user/{id}', [UserController::class, 'destroy']); // Eliminar un usuario
-
-    // ROUTES FOR ACTUALITES (Publicaciones)
-    Route::post('/actualites', [ActualiteController::class, 'store']); // Crear una nueva publicación
-    Route::put('/actualites/{id}', [ActualiteController::class, 'update']); // Actualizar una publicación existente
-    Route::delete('/actualites/{id}', [ActualiteController::class, 'destroy']); // Eliminar una publicación
-});
-
-// Rutas para obtener publicaciones abiertas, que no requieren autenticación
-Route::get('/actualites', [ActualiteController::class, 'index']); // Obtener todas las publicaciones
-Route::get('/actualites/{id}', [ActualiteController::class, 'show']); // Obtener una publicación específica
 
 // Ruta de ejemplo para mostrar mensaje de "Debe iniciar sesión" si el usuario no está autenticado
 Route::get('/login', function () {
