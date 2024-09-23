@@ -53,14 +53,17 @@ Route::post('/login', function (Request $request) {
 
   
     return response()->json(['token' => $token,
-    'user' => $user->id,
+    'user_id' => $user->id,
     'user_email' => $user->email,
     'user_rol' => $user->rol,
     'user_name' => $user->name
     ]);
 });
 
-// Ruta de ejemplo para mostrar mensaje de "Debe iniciar sesión" si el usuario no está autenticado
-Route::get('/login', function () {
-    return response()->json(['message' => 'Debe iniciar sesión para acceder a esta ruta'], 401);
-})->name('login');
+
+Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
+    // Elimina el token actual del usuario
+    $request->user()->currentAccessToken()->delete();
+
+    return response()->json(['message' => 'Logout successful']);
+});
