@@ -16,10 +16,10 @@ class UserFactory extends Factory
             'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
             'email_verified_at' => now(),
-            'password' => bcrypt('password'), // Contraseña encriptada
+            'password' => bcrypt('password'), 
             'remember_token' => Str::random(10),
-            'telefono' => $this->faker->phoneNumber, // Generar número de teléfono falso
-            'rol' => $this->faker->randomElement(['user', 'admin']), // Generar un rol al azar
+            'telefono' => $this->faker->phoneNumber, 
+            'rol' => $this->faker->randomElement(['user', 'admin']),
         ];
     }
 }

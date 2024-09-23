@@ -8,8 +8,6 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
-
-
 // Ruta para obtener los datos del usuario autenticado
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -53,15 +51,16 @@ Route::post('/login', function (Request $request) {
     // Crear un token para el usuario autenticado
     $token = $user->createToken('token-name')->plainTextToken;
 
-    // Ajouer l'id  de l'utilisateur sur user_id  de session  $user->id
-
-    return response()->json(['token' => $token, 'rol' => $user->rol]);
+  
+    return response()->json(['token' => $token,
+    'user' => $user->id,
+    'user_email' => $user->email,
+    'user_rol' => $user->rol,
+    'user_name' => $user->name
+    ]);
 });
-
-
 
 // Ruta de ejemplo para mostrar mensaje de "Debe iniciar sesión" si el usuario no está autenticado
 Route::get('/login', function () {
     return response()->json(['message' => 'Debe iniciar sesión para acceder a esta ruta'], 401);
 })->name('login');
-
