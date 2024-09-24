@@ -12,8 +12,8 @@ class ActualiteController extends Controller
     public function store(Request $request)
     {
         // Verifica si el usuario es administrador
-         if (Auth::user()->rol !== 'admin') {
-             return response()->json(['message' => 'No autorizado'], 403);
+        if (Auth::user()->rol !== 'admin') {
+            return response()->json(['message' => 'No autorizado'], 403);
         }
 
         // Validar los datos
@@ -22,76 +22,88 @@ class ActualiteController extends Controller
             'content' => 'required|string',
             'image' => 'nullable|url',
         ]);
-    
+
         // Crear una nueva instancia de Actualite
         $actualite = new Actualite();
-    
+
         // Asignar cada atributo manualmente
         $actualite->titre = $request->titre;
         $actualite->content = $request->content;
         $actualite->image = $request->image;
         $actualite->slug = Str::slug($request->titre);
-    
+
         // Guardar el nuevo post en la base de datos
         $actualite->save();
-    
+
         // Retornar la respuesta con el objeto creado
         return response()->json($actualite, 201);
     }
 
     public function index()
-{
-    $actualites = Actualite::all(); // Obtener todas las publicaciones
-    return response()->json($actualites, 200); // Retornar las publicaciones en formato JSON
-}
-
-public function show($id)
-{
-    $actualite = Actualite::find($id); // Buscar la publicación por ID
-
-    if (!$actualite) {
-        return response()->json(['message' => 'Publicación no encontrada'], 404);
+    {
+        $actualites = Actualite::all(); // Obtener todas las publicaciones
+        return response()->json($actualites, 200); // Retornar las publicaciones en formato JSON
     }
 
-    return response()->json($actualite, 200); // Retornar la publicación en formato JSON
-}
+    public function show($id)
+    {
+        $actualite = Actualite::find($id); // Buscar la publicación por ID
 
-public function update(Request $request, $id)
-{
-    $actualite = Actualite::find($id); // Buscar la publicación por ID
+        if (!$actualite) {
+            return response()->json(['message' => 'Publicación no encontrada'], 404);
+        }
 
-    if (!$actualite) {
-        return response()->json(['message' => 'Publicación no encontrada'], 404);
+        return response()->json($actualite, 200); // Retornar la publicación en formato JSON
     }
 
-    // Validar los datos
-    $request->validate([
-        'titre' => 'sometimes|string|max:255',
-        'content' => 'sometimes|string',
-        'image' => 'nullable|url',
-    ]);
+    public function update(Request $request, $id)
+    {
+        $actualite = Actualite::find($id); // Buscar la publicación por ID
 
-    // Actualizar los datos solo si fueron proporcionados en la solicitud
-    $actualite->titre = $request->titre ?? $actualite->titre;
-    $actualite->content = $request->content ?? $actualite->content;
-    $actualite->image = $request->image ?? $actualite->image;
-    $actualite->slug = Str::slug($request->titre ?? $actualite->titre);
-    $actualite->save();
+        if (!$actualite) {
+            return response()->json(['message' => 'Publicación no encontrada'], 404);
+        }
 
-    return response()->json($actualite, 200); // Retornar la publicación actualizada en formato JSON
-}
+        // Validar los datos
+        $request->validate([
+            'titre' => 'sometimes|string|max:255',
+            'content' => 'sometimes|string',
+            'image' => 'nullable|url',
+        ]);
 
-public function destroy($id)
-{
-    $actualite = Actualite::find($id); // Buscar la publicación por ID
+        // Actualizar los datos solo si fueron proporcionados en la solicitud
+        $actualite->titre = $request->titre ?? $actualite->titre;
+        $actualite->content = $request->content ?? $actualite->content;
+        $actualite->image = $request->image ?? $actualite->image;
+        $actualite->slug = Str::slug($request->titre ?? $actualite->titre);
+        $actualite->save();
 
-    if (!$actualite) {
-        return response()->json(['message' => 'Publicación no encontrada'], 404);
+        return response()->json($actualite, 200); // Retornar la publicación actualizada en formato JSON
     }
 
-    $actualite->delete(); // Eliminar la publicación
-    return response()->json(['message' => 'Publicación eliminada correctamente'], 200); // Retornar el mensaje de confirmación
-}
+    public function destroy($id)
+    {
+        $actualite = Actualite::find($id); // Buscar la publicación por ID
 
+        if (!$actualite) {
+            return response()->json(['message' => 'Publicación no encontrada'], 404);
+        }
 
+        $actualite->delete(); // Eliminar la publicación
+        return response()->json(['message' => 'Publicación eliminada correctamente'], 200); // Retornar el mensaje de confirmación
+    }
+
+    // Función para obtener la última publicación
+    public function getLastPost()
+    {
+        // Obtener la última publicación ordenada por la fecha de creación
+        $lastPost = Actualite::orderBy('created_at', 'desc')->first();
+
+        // Verificar si existe una publicación
+        if ($lastPost) {
+            return response()->json($lastPost, 200); // Retornar la última publicación
+        } else {
+            return response()->json(['message' => 'Aucune publication disponible.'], 404); // No hay publicaciones
+        }
+    }
 }

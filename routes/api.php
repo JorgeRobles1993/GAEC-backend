@@ -67,3 +67,5 @@ Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
 
     return response()->json(['message' => 'Logout successful']);
 });
+
+Route::get('/last-post', [ActualiteController::class, 'getLastPost']);
