@@ -60,24 +60,20 @@ public function update(Request $request, $id)
         return response()->json(['message' => 'Usuario no encontrado'], 404);
     }
 
-    // Validar los datos
     $request->validate([
         'name' => 'sometimes|string|max:255',
         'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-        'password' => 'sometimes|string|min:8',
         'telefono' => 'nullable|string|max:20',
         'rol' => 'nullable|string|in:user,admin',
     ]);
 
-    // Actualizar los datos del usuario
+    // Actualizar solo los campos proporcionados en la solicitud
     $user->update([
-        'name' => $request->name ?? $user->name,
+        'name' => $request->name ?? $user->name, 
         'email' => $request->email ?? $user->email,
-        'password' => $request->password ? Hash::make($request->password) : $user->password,
-        'telefono' => $request->telefono ?? $user->telefono,
+        'telefono' => $request->telefono ?? $user->telefono, // Solo actualiza si se proporciona
         'rol' => $request->rol ?? $user->rol,
     ]);
-
     return response()->json($user, 200);
 }
 
