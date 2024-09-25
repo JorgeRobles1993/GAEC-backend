@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
 
 
 class UserController extends Controller
@@ -60,20 +62,28 @@ public function update(Request $request, $id)
         return response()->json(['message' => 'Usuario no encontrado'], 404);
     }
 
+    // Validar los datos, el password es opcional
     $request->validate([
         'name' => 'sometimes|string|max:255',
         'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
         'telefono' => 'nullable|string|max:20',
         'rol' => 'nullable|string|in:user,admin',
+        'password' => 'nullable|string|min:8' // Contraseña es opcional
     ]);
 
-    // Actualizar solo los campos proporcionados en la solicitud
-    $user->update([
-        'name' => $request->name ?? $user->name, 
-        'email' => $request->email ?? $user->email,
-        'telefono' => $request->telefono ?? $user->telefono, // Solo actualiza si se proporciona
-        'rol' => $request->rol ?? $user->rol,
-    ]);
+    // Actualizar los datos del usuario
+    $user->name = $request->name ?? $user->name;
+    $user->email = $request->email ?? $user->email;
+    $user->telefono = $request->telefono ?? $user->telefono;
+    $user->rol = $request->rol ?? $user->rol;
+
+    // Si el password fue proporcionado, lo actualizamos (hash)
+    if ($request->filled('password')) {
+        $user->password = Hash::make($request->password);
+    }
+
+    $user->save();
+
     return response()->json($user, 200);
 }
 
@@ -97,5 +107,27 @@ public function isAdmin($token) {
 
 }
 
+public function register(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8|confirmed',
+        'telefono' => 'nullable|string|max:20' // El campo 'telefono' es opcional
+    ]);
 
+    if ($validator->fails()) {
+        return response()->json($validator->errors(), 422);
+    }
+
+    // Crear un nuevo usuario
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'telefono' => $request->telefono, // Guardar el teléfono si está presente
+    ]);
+
+    return response()->json(['message' => 'Usuario registrado correctamente', 'user' => $user], 201);
+}
 }
