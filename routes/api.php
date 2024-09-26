@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User; // Asegúrate de importar el modelo User
+use App\Http\Controllers\ReservationController;
 
 // Ruta para registrar un usuario (no protegida)
 Route::post('/register', [UserController::class, 'register']);
@@ -36,7 +37,16 @@ Route::middleware('auth:sanctum')->group(function () {
         $request->user()->currentAccessToken()->delete(); // Elimina el token actual del usuario
         return response()->json(['message' => 'Logout successful']);
     });
+
+    // Rutas para Admin-reservations
+    Route::get('/reservations', [ReservationController::class, 'index']);
+    Route::post('/reservations', [ReservationController::class, 'store']);
+    Route::get('/reservations/{id}', [ReservationController::class, 'show']);
+    Route::put('/reservations/{id}', [ReservationController::class, 'update']);
+    Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
+
 });
+
 
 // Rutas para obtener publicaciones abiertas (sin protección de autenticación)
 Route::get('/actualites', [ActualiteController::class, 'index']); // Obtener todas las publicaciones
