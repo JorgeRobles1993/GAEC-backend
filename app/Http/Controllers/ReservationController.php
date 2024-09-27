@@ -7,17 +7,17 @@ use Illuminate\Http\Request;
 
 class ReservationController extends Controller
 {
-    // Mostrar todas las reservaciones
+    
     public function index()
     {
-        $reservations = Reservation::with('user')->get(); // Asumiendo que tienes una relación con el modelo User
+        $reservations = Reservation::with('user')->get(); 
         return response()->json($reservations);
     }
 
-    // Crear una nueva reservación
+    
     public function store(Request $request)
     {
-        // Validar la solicitud
+       
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'reservation_date' => 'required|date',
@@ -25,7 +25,7 @@ class ReservationController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
-        // Verificar si ya existe una reserva en el mismo rango de tiempo
+        
         $existingReservation = Reservation::where('reservation_date', $request->reservation_date)
             ->where(function ($query) use ($request) {
                 $query->whereBetween('start_time', [$request->start_time, $request->end_time])
@@ -37,12 +37,12 @@ class ReservationController extends Controller
             })
             ->exists();
 
-        // Si existe una reserva en el mismo rango de tiempo, devolver un error
+       
         if ($existingReservation) {
             return response()->json(['error' => 'El horario solicitado ya está reservado. Por favor, elija otro rango de tiempo.'], 409);
         }
 
-        // Crear la nueva reserva
+        
         $reservation = Reservation::create([
             'user_id' => $request->user_id,
             'reservation_date' => $request->reservation_date,
@@ -64,7 +64,7 @@ class ReservationController extends Controller
         return response()->json($reservation);
     }
 
-    // Actualizar una reservación
+    
     public function update(Request $request, $id)
     {
         $reservation = Reservation::find($id);
@@ -73,16 +73,16 @@ class ReservationController extends Controller
             return response()->json(['error' => 'Reserva no encontrada'], 404);
         }
 
-        // Validar la solicitud
+        
         $request->validate([
             'reservation_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
-        // Verificar si ya existe una reserva en el mismo rango de tiempo (excepto la actual)
+       
         $existingReservation = Reservation::where('reservation_date', $request->reservation_date)
-            ->where('id', '!=', $reservation->id)  // Excluir la reserva actual de la verificación
+            ->where('id', '!=', $reservation->id)  
             ->where(function ($query) use ($request) {
                 $query->whereBetween('start_time', [$request->start_time, $request->end_time])
                       ->orWhereBetween('end_time', [$request->start_time, $request->end_time])
@@ -93,12 +93,12 @@ class ReservationController extends Controller
             })
             ->exists();
 
-        // Si existe una reserva en el mismo rango de tiempo, devolver un error
+        
         if ($existingReservation) {
             return response()->json(['error' => 'El horario solicitado ya está reservado. Por favor, elija otro rango de tiempo.'], 409);
         }
 
-        // Actualizar la reserva
+    
         $reservation->update([
             'reservation_date' => $request->reservation_date,
             'start_time' => $request->start_time,
@@ -110,7 +110,7 @@ class ReservationController extends Controller
 
 
 
-    // Eliminar una reservación
+   
     public function destroy($id)
     {
         $reservation = Reservation::find($id);

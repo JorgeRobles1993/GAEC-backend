@@ -9,7 +9,6 @@ class ActualiteSeeder extends Seeder
 {
     public function run()
     {
-        // Crea 10 publicaciones usando el factory
         Actualite::factory()->count(10)->create();
     }
 }

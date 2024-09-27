@@ -14,10 +14,10 @@ class Reservation extends Model
         'reservation_date', 
         'start_time', 
         'end_time',
-        // otros campos necesarios
+       
     ];
 
-    // Relación con el modelo User
+    
     public function user()
     {
         return $this->belongsTo(User::class);
