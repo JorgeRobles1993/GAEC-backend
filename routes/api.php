@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\MailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
@@ -47,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
+Route::post('/send-mail', [MailController::class, 'sendMail']);
 
 
 Route::get('/actualites', [ActualiteController::class, 'index']); 
